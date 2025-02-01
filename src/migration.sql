@@ -1,0 +1,19 @@
+DROP DATABASE IF EXISTS php_portfolio; 
+
+
+CREATE DATABASE IF NOT EXISTS php_portfolio; 
+
+
+USE php_portfolio; 
+
+
+CREATE TABLE IF NOT EXISTS interests (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(50) UNIQUE NOT NULL
+)
+
+
+
+CREATE TABLE IF NOT EXISTS users (
+    id INT PRIMARY KEY AUTO_INCREMENT
+);

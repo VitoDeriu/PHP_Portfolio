@@ -1,0 +1,16 @@
+{
+    "name": "vito/php_portfolio",
+    "description": "projet final portfolio pour le cours de php B2",
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "VitoDeriu",
+            "email": "vito.deriu@ynov.com"
+        }
+    ],
+    "require": {}
+}
