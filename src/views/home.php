@@ -6,8 +6,8 @@
     <title>Document</title>
 </head>
 <body>
-    TEST
-
-    <a href="/src/views/admin.php">admin</a>
+    <h1>HOME</h1>
+    <a href="/register">S'inscrire</a>
+    <a href="/login">Se Connecter</a>
 </body>
 </html>
