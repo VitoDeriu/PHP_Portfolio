@@ -9,8 +9,13 @@
     <?php
         include("header.php");
     ?>
-    <h1>HOME</h1>
-    <a href="/register">S'inscrire</a>
-    <a href="/login">Se Connecter</a>
+    <h1>Profil Page</h1>
+    <?php
+        if (!empty($_SESSION['user'])) {
+            foreach ($_SESSION['user'] as $info) {
+                echo ("<p>$info</p>");
+            }
+        }
+    ?>
 </body>
 </html>
