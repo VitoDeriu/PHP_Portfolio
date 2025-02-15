@@ -57,7 +57,6 @@ class AuthController{
 
                 $userModel = new User('users');
                 $user = $userModel->findByEmail($email);
-                var_dump($user);
                     
                 //check si l'email n'existe pas dans la bdd on renvoie une erreur
                 if(!$user){ 

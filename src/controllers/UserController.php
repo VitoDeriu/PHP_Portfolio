@@ -6,6 +6,7 @@ namespace App\Controllers;
 
 class UserController{
     public function profil(){
+
         if(isset($_SESSION["user"])){
             require_once __DIR__ . '/../views/profil.php';
         }else{

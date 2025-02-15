@@ -10,7 +10,25 @@
         include("header.php");
     ?>
     <h1>HOME</h1>
-    <a href="/register">S'inscrire</a>
-    <a href="/login">Se Connecter</a>
+    <?php
+        if(isset($_SESSION["user"])){
+            echo("
+                <li>
+                    <a href='/profil'>Profil</a>
+                    <a href='/logout'>Logout</a>
+                </li>
+            ");
+        } else {
+            echo("
+                <li>
+                    <a href='/register'>S'inscrire</a>
+                    <a href='/login'>Se Connecter</a>
+                </li>
+            ");
+        }
+    ?>
+
+
+
 </body>
 </html>

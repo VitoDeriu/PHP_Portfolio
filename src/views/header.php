@@ -1,12 +1,12 @@
 <header>
     <li>
-        <ul><a href="/">Home</a></ul>
-        <ul><a href="/profil">Profil</a></ul>
-        <ul><a href="/project">Project</a></ul>
-        <ul><?php
+        <a href="/">Home</a>
+        <a href="/profil">Profil</a>
+        <a href="/project">Project</a>
+        <?php
             if(isset($_SESSION["user"])){
                 echo("<a href='/logout'>Logout</a>");
             }
-        ?></ul>
+        ?>
     </li>
 </header>

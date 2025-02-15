@@ -8,7 +8,6 @@
 <body>
     <?php
         include("header.php");
-        var_dump($_SESSION);
 
         //affichage de la création du user si celui-ci réussis
         if (!empty($_SESSION['success'])) {
