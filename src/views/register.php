@@ -7,15 +7,6 @@
 </head>
 <body>
     <?php
-    //affichage des erreurs
-        if (!empty($_SESSION['errors'])) {
-            foreach ($_SESSION['errors'] as $error) {
-                echo ("<p style='color: red;'>$error</p>");
-            }
-            unset($_SESSION['errors']); // Supprime les erreurs après affichage
-        }
-    ?>
-    <?php
         include("header.php");
     ?>
     <h1>Register</h1>

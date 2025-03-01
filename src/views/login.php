@@ -8,26 +8,8 @@
 <body>
     <?php
         include("header.php");
-
-        //affichage de la création du user si celui-ci réussis
-        if (!empty($_SESSION['success'])) {
-            foreach ($_SESSION['success'] as $s) {
-                echo ("<p style='color: green;'>$s</p>");
-            }
-            unset($_SESSION['success']); // Supprime après affichage
-        }
-        
-        //affichage des erreurs
-        if (!empty($_SESSION['errors'])) {
-            foreach ($_SESSION['errors'] as $error) {
-                echo ("<p style='color: red;'>$error</p>");
-            }
-            unset($_SESSION['errors']); // Supprime les erreurs après affichage
-        }
     ?>
-
-
-
+    
     <h1>Login</h1>
     <form action="/login" method="POST">
 

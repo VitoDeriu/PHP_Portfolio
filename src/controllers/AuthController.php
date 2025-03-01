@@ -9,13 +9,105 @@ use App\Models\User;
 
 class AuthController{
 
+    public function register(){
+
+        if($_SERVER['REQUEST_METHOD'] === 'GET'){
+            if(isset($_SESSION['user'])){
+                header('Location: /profil');
+            }else{
+                require_once __DIR__ . '/../views/register.php';
+            }
+        }
+        
+        elseif($_SERVER['REQUEST_METHOD'] === 'POST'){
+
+            //recuperation des données du formulaire
+
+            if(!(isset($_POST['firstname']) && !empty($_POST["firstname"]))){
+                $_SESSION["errors"]["firstname"] ="Veuillez saisir un prénom valide !";
+             } else {
+                $firstname = htmlspecialchars($_POST["firstname"]);
+            }
+
+            if(!(isset($_POST['lastname']) && !empty($_POST["lastname"]))){
+                $_SESSION["errors"]["lastname"] ="Veuillez saisir un nom valide !";
+             } else {
+                $lastname = htmlspecialchars($_POST["lastname"]);
+            }
+
+            if(!(isset($_POST['pseudo']) && !empty($_POST["pseudo"]))){
+                $_SESSION["errors"]["pseudo"] ="Veuillez saisir un pseudo valide !";
+             } else {
+                $pseudo = htmlspecialchars($_POST["pseudo"]);
+            }
+
+            if(!(isset($_POST['email']) && !empty($_POST["email"]))){
+                $_SESSION["errors"]["email"] ="Veuillez saisir un email !";
+             } else {
+                $email = htmlspecialchars($_POST["email"]);
+            }
+
+            //validation de l'email
+            if(!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $_SESSION["errors"]["email"] = "le format de l'adresse email n'est pas valide !";
+            }
+
+            if(!(isset($_POST["password"]) && !empty($_POST["password"]))){
+                $_SESSION["errors"]["password"] ="Veuillez saisir un mot de passe !";
+             } else {
+                $password = htmlspecialchars($_POST["password"]);
+            }
+
+            if(!(isset($_POST["confirm_password"]) && !empty($_POST["confirm_password"]))){
+                $_SESSION["errors"]["password"] ="Veuillez confirmer le mot de passe !";
+             } else {
+                $confirmPassword = htmlspecialchars($_POST["confirm_password"]);
+            }
+            
+            //hashage du password si la confirmation correspond
+            if($confirmPassword !== $password) {
+                $_SESSION["errors"]["confirm_password"] ="Les mots de passes doivent être identiques !" . $confirmPassword . " != " . $password;
+             } else {
+                $passwordHashed = password_hash($password, PASSWORD_DEFAULT);
+            }
+
+            //redirect si erreur
+            if(isset($_SESSION["errors"]) && count($_SESSION["errors"]) > 0) {
+                header('Location: /register', 400);
+                exit;
+            }   
+
+            //TODO : Si erreur reremplir automatiquement les champs déjà saisis 
+            
+            //nettoyage de l'email
+            $email = filter_var($email, FILTER_SANITIZE_EMAIL);
+
+            //insertion dans la bdd
+            try{
+                //check si l'utilisateur existe déjà
+                $user = new User("users");
+                if($user->findByEmail($email) !== false){
+                    $_SESSION["errors"]["exist"] = "L'adresse email est déjà prise.";
+                    header('Location: /register', 400);
+                } else {
+                    $user->createUser($firstname, $lastname, $pseudo, $email, $passwordHashed);
+                    $_SESSION["success"]["createUser"] = "Utilisateur créé avec succès !";
+                    header("location: /login"); //on renvoi vers la page login dès que l'utilisateur est créer avec un feedback
+                }
+             } catch(Exception $e) {
+                $_SESSION["errors"]["BDD"] = $e->getMessage();
+                header('Location: /register', 400);
+            }
+        }
+    }
+
     public function login(){
 
         if($_SERVER['REQUEST_METHOD'] === 'GET'){
             if(isset($_SESSION["user"]["id"])){
                 header('Location: /profil');
                 exit;
-            }else{
+             }else{
                 require_once __DIR__ . '/../views/login.php';
 
             }
@@ -27,31 +119,34 @@ class AuthController{
             //recup les données du formulaire 
             if(!(isset($_POST["email"]) && !empty($_POST["email"]))){
                 $_SESSION["errors"]["email"] ="Veuillez saisir un email !";
-            } else {
+             } else {
                 $email = htmlspecialchars($_POST["email"]);
             }
-                //validation de l'email
+
+            //validation de l'email
             if(!filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 $_SESSION["errors"]["email"] = "le format de l'adresse email n'est pas valide !";
             }
 
             if(!(isset($_POST["password"]) && !empty($_POST["password"]))){
                 $_SESSION["errors"]["password"] ="Veuillez saisir un mot de passe !";
-            } else {
+             } else {
                 $password = htmlspecialchars($_POST["password"]);
             }
 
+            //si coché = true, si pas coché = false
+            $remember = !empty($_POST["remember"]); 
+            
             //check si y'a des erreurs
             if(isset($_SESSION["errors"]) && count($_SESSION["errors"]) > 0) {
                 header('Location: /login', 400);
                 exit;
             }
 
+            //TODO : reremplir les champs (email et remember) si erreur lors de la redirection
+
             //nettoyage de l'email
             $email = filter_var($email, FILTER_SANITIZE_EMAIL);
-            
-            //si coché = true, si pas coché = false
-            $remember = !empty($_POST["remember"]); 
 
             try {
 
@@ -86,7 +181,7 @@ class AuthController{
                     header('Location: /profil');
                     exit;
                 }
-            } catch (Exception $e) {
+             } catch (Exception $e) {
                 $_SESSION["errors"]["BDD"] = $e->getMessage();
                 header('Location: /login', 500);
                 exit;
@@ -114,95 +209,6 @@ class AuthController{
                 // Si le token est invalide, on supprime le cookie
                 setcookie("remember_me", "", strtotime( "-1 day"), "/", "", true, true);
                 unset($_COOKIE["remember_me"]); //et on enlève le cookie
-            }
-        }
-
-    }
-
-    public function register(){
-
-        if($_SERVER['REQUEST_METHOD'] === 'GET'){
-            if(isset($_SESSION['user'])){
-                header('Location: /profil');
-            }else{
-                require_once __DIR__ . '/../views/register.php';
-            }
-        }
-        
-        elseif($_SERVER['REQUEST_METHOD'] === 'POST'){
-
-            //recuperation des données du formulaire
-
-            if(!(isset($_POST['firstname']) && !empty($_POST["firstname"]))){
-                $_SESSION["errors"]["firstname"] ="Veuillez saisir un prénom valide !";
-            } else {
-                $firstname = htmlspecialchars($_POST["firstname"]);
-            }
-
-            if(!(isset($_POST['lastname']) && !empty($_POST["lastname"]))){
-                $_SESSION["errors"]["lastname"] ="Veuillez saisir un nom valide !";
-            } else {
-                $lastname = htmlspecialchars($_POST["lastname"]);
-            }
-
-            if(!(isset($_POST['pseudo']) && !empty($_POST["pseudo"]))){
-                $_SESSION["errors"]["pseudo"] ="Veuillez saisir un pseudo valide !";
-            } else {
-                $pseudo = htmlspecialchars($_POST["pseudo"]);
-            }
-
-            if(!(isset($_POST['email']) && !empty($_POST["email"]))){
-                $_SESSION["errors"]["email"] ="Veuillez saisir un email !";
-            } else {
-                $email = htmlspecialchars($_POST["email"]);
-            }
-
-            //validation de l'email
-            if(!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                $_SESSION["errors"]["email"] = "le format de l'adresse email n'est pas valide !";
-            }
-
-            if(!(isset($_POST["password"]) && !empty($_POST["password"]))){
-                $_SESSION["errors"]["password"] ="Veuillez saisir un mot de passe !";
-            } else {
-                $password = htmlspecialchars($_POST["password"]);
-            }
-
-            if(!(isset($_POST["confirm_password"]) && !empty($_POST["confirm_password"]))){
-                $_SESSION["errors"]["password"] ="Veuillez confirmer le mot de passe !";
-            } else {
-                $confirmPassword = htmlspecialchars($_POST["confirm_password"]);
-            }
-            
-            if($confirmPassword !== $password) {
-                $_SESSION["errors"]["confirm_password"] ="Les mots de passes doivent être identiques !" . $confirmPassword . " != " . $password;
-            } else {
-                $passwordHashed = password_hash($password, PASSWORD_DEFAULT);
-            }
-
-            if(isset($_SESSION["errors"]) && count($_SESSION["errors"]) > 0) {
-                header('Location: /register', 400);
-                exit;
-            }   
-            
-            //nettoyage de l'email
-            $email = filter_var($email, FILTER_SANITIZE_EMAIL);
-
-            //insertion dans la bdd
-            try{
-                //check si l'utilisateur existe déjà
-                $user = new User("users");
-                if($user->findByEmail($email) !== false){
-                    $_SESSION["errors"]["exist"] = "L'adresse email est déjà prise.";
-                    header('Location: /register', 400);
-                } else {
-                    $user->createUser($firstname, $lastname, $pseudo, $email, $passwordHashed);
-                    $_SESSION["success"]["createUser"] = "Utilisateur créé avec succès !";
-                    header("location: /login"); //on renvoi vers la page login dès que l'utilisateur est créer avec un feedback
-                }
-            } catch(Exception $e) {
-                $_SESSION["errors"]["BDD"] = $e->getMessage();
-                header('Location: /register', 400);
             }
         }
     }

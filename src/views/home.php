@@ -12,10 +12,16 @@
     <h1>HOME</h1>
     <?php
         if(isset($_SESSION["user"])){
+            if($_SESSION["user"]["role"] == 'admin'){
+                echo("
+                    <a href='/Dashboard'>Dashboard</a>
+                ");
+            }
             echo("
                 <li>
                     <a href='/profil'>Profil</a>
                     <a href='/logout'>Logout</a>
+                    <a href='/project'>Project</a>
                 </li>
             ");
         } else {
