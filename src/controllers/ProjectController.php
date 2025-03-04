@@ -67,20 +67,49 @@ class ProjectController{
                 $_SESSION["errors"]["image"] ="Veuillez choisir une image pour illustrer votre projet.";
              } else {
 
-
-
-                //Enregistrement de l'image dans le dossier /public/image 
-                $uploadDir = __DIR__ . '/../../public/images/';     //chemin vers le dossier d'upload des images
-                $tempPath = $_FILES["image"]["tmp_name"];           //recup du chemin temporaire
-                $originalName = $_FILES["image"]["name"];           //recup du nom de l'image
-                $fileParts = explode(".", $originalName);           //split du nom en 2
-                $extension = $fileParts[count($fileParts) - 1];     //recup l'extension du fichier
-                $fileName = $fileParts[0];                          //recup seulement le nom du fichier
-                $imgName = $fileName . "-" . date("Y-m-d-H-i-s") . "." . $extension; //création d'un nom unique pour l'image
-
+                // Restriction d'image
+                 $allowedExtensions = ['jpg', 'jpeg', 'png'];
+                 $allowedMimeTypes = ['image/jpeg', 'image/png'];
+                $maxFileSize = 2 * 1024 * 1024; // 2 Mo
+                
+                //Récupération des donée de l'image pour l'enregistrement
+                 $uploadDir = __DIR__ . '/../../public/images/';     //chemin vers le dossier d'upload des images
+                 $tempPath = $_FILES["image"]["tmp_name"];           //recup du chemin temporaire
+                 $originalName = $_FILES["image"]["name"];           //recup du nom de l'image
+                 $fileParts = explode(".", $originalName);           //split du nom en 2
+                 $extension = $fileParts[count($fileParts) - 1];     //recup l'extension du fichier
+                 $fileName = $fileParts[0];                          //recup seulement le nom du fichier
+                 $imgName = $fileName . "-" . date("Y-m-d-H-i-s") . "." . $extension; //création d'un nom unique pour l'image
+ 
                 $destPath = $uploadDir . $imgName;                  //creation du chemin final pour l'image
 
-                if(move_uploaded_file($tempPath, $destPath)) {      //deplacement du fichier dans le dossier serveur 
+                //Check du format d'image
+                if (!in_array($extension, $allowedExtensions)) {
+                    $_SESSION["errors"]["image"] ="Format de fichier non prit en charge !";
+                    header('Location: /project/create', 400);
+                    exit;
+                }
+
+                //Check du MIME type
+                 $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                 $mimeType = finfo_file($finfo, $tempPath);
+                 finfo_close($finfo);
+                        
+                if (!in_array($mimeType, $allowedMimeTypes)) {
+                    $_SESSION["errors"]["image"] ="Type de fichier interdit !";
+                    header('Location: /project/create', 400);
+                    exit;
+                }
+            
+                //Check de la taille de l'image
+                if ($fileSize > $maxFileSize) {
+                    $_SESSION["errors"]["image"] ="Le fichier est trop volumineux !";
+                    header('Location: /project/create', 400);
+                    exit;
+                }
+
+                //deplacement du fichier dans le dossier serveur
+                if(move_uploaded_file($tempPath, $destPath)) {       
                     $imgPath = 'images/' . $imgName;                //chemin a stocker dans la bdd
                  } else {
                     $_SESSION["errors"]["image"] = "Erreur lors du délacement de l'image !";
@@ -111,8 +140,62 @@ class ProjectController{
     }
 
 
+    // TODO : Suppression d'un projet, seulement accessible depuis le dashboard admin et la vue depuis le compte admin et depuis mesprojets pour les users.
+    public function deleteProject(){
+        // !! Attention !! a verifier ce qui suit c'est chatgpt !
+        // TODO : faire la gestion d'erreur
+
+        //check la conexion 
+        if (!isset($_SESSION['user'])) {
+            header('Location: /login');
+            exit;
+        }
+
+        //check si l'id récupérer du delete est set et est un nombre
+        if (!isset($_POST['id']) || !is_numeric($_POST['id'])) {
+            echo "ID invalide";
+            exit;
+        }
 
 
+        $projectId = (int)$_POST['id'];             //transforme en int ? 
+        $projectModel = new Project();              //appel du model maintenant ?
+        $project = $projectModel->find(['id' => $projectId]); //check si le projet existe
+    
+        //erreur si le projet n'existe pas 
+        if (!$project) {
+            echo "Projet introuvable";
+            exit;
+        }
+    
+        // Vérifier si l'utilisateur est bien l'auteur ou admin
+        if ($project[0]['user_id'] !== $_SESSION['user']['id'] && $_SESSION['user']['role'] !== 'admin') {
+            echo "Vous n'avez pas les droits pour supprimer ce projet";
+            exit;
+        }
+    
+        // Supprimer l'image si elle existe
+        if (!empty($project[0]['image'])) {
+            $imagePath = __DIR__ . '/../public/upload/' . $project[0]['image'];
+            if (file_exists($imagePath)) {
+                unlink($imagePath); //explication du unlink ? 
+            }
+        }
+    
+        // Supprimer le projet
+        $projectModel->delete($projectId);
+        header('Location: /');
+        exit;
+
+
+
+
+
+
+
+
+
+    }
 
 
 
@@ -143,7 +226,6 @@ class ProjectController{
 
     TODO : Modification des projets (affichage du form de modif et gestion de son envoi) accessible depuis la page profil/mesprojets seulement
 
-    TODO : Suppression d'un projet, seulement accessible depuis le dashboard admin et la vue depuis le compte admin et depuis mesprojets pour les users.
 
     TODO : affichage d'un seul projet en détail avec toute la description, bouton modifier pour les users et supprimer pour admins et users
 

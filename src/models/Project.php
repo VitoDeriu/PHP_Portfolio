@@ -69,13 +69,31 @@ class Project {
     // SELECT p.*, u.pseudo FROM projects AS p
     // JOIN users AS u ON p.id_user = u.id;
 
+    
+    //TODO : Delete Project a vérifier chatgpt
+    public function deleteProject(int $id): bool {
+        $table = $this->table;
+        $sql = "DELETE FROM $table WHERE id = :id";
+        try {
+            $statement = $this->pdo->prepare($sql);
+            $statement->bindParam("id", $id);
+            return $statement->execute();
+        } catch (Exception $e) {
+            echo($e->getMessage());
+            return false;
+        }
+    }
+    
 
-    /*
 
-        TODO : Update Project
-        TODO : Delete Project
 
-    */
+
+
+
+
+    //TODO : Update Project
+
+    
 
 
 

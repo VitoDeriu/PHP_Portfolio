@@ -71,10 +71,15 @@ switch($uri){
         $controller = new ProjectController();
         $controller->createProject();
         break;                                  //affichage des projets
+        
+    case '/project/delete':                   
+        require_once __DIR__ . '/../controllers/ProjectController.php';
+        $controller = new ProjectController();
+        $controller->deleteProject();
+        break;                                  //suppression d'un projet et redirection vers la route myproject pour le user et projects pour l'admin
 
         // case '/project/myprojects'               /affichages des projet du user avec possibilité de suppression et de modification
         // case '/project/update'                   //affichage formulaire de modification de projet et gestion de la modification + redirection vers myprojects
-        // case '/project/delete'                   //suppression du projet et redirection vers la route myproject pour le user et projects pour l'admin
         // case '/project/:id'                      //affichage d'un projets complet avec modif
         
     //Route 404

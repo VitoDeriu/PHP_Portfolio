@@ -38,9 +38,10 @@ class User {
     //créer un user dans la bdd (à ameliorer)
     public function createUser(string $firstname, string $lastname, string $pseudo, string $email, string $password ): array | bool {
         $table = $this->table;
+        $role = 2;  //ca jsuis pas sur de la sécu...
         $sql = <<<sql
-        INSERT INTO $table(firstname, lastname, pseudo, email, password)
-        VALUES(:firstname, :lastname, :pseudo, :email, :password)
+        INSERT INTO $table(firstname, lastname, pseudo, email, password, id_role)
+        VALUES(:firstname, :lastname, :pseudo, :email, :password, :id_role)
         sql;
         try {
             $statement = $this->pdo->prepare($sql);
@@ -49,6 +50,7 @@ class User {
             $statement->bindParam("pseudo", $pseudo);
             $statement->bindParam("email", $email);
             $statement->bindParam("password", $password);
+            $statement->bindParam("id_role", $role); //du coup ici non plus mais j'ai pas trouvé mieux, a voir dans le create du sql si on peut pas faire un par défaut
             $statement->execute();
             return $this->pdo->lastInsertId();
         } catch(Exception $e) {
@@ -57,9 +59,9 @@ class User {
         }
     }
     
-    //fonction deleteUser
+    //TODO : fonction deleteUser
 
-    //fonction updateUser (un peu tricky celle la je pense)
+    //TODO : fonction updateUser (un peu tricky celle la je pense)
 
     //Stocker le token de connexion rememberme dans l'utilisateur
     public function updateRememberMe(string $token, int $user_id){
