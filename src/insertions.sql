@@ -19,5 +19,6 @@ VALUES  ('CSS'), ('JavaScript'), ('Python'), ('Java'), ('PHP ');
 INSERT INTO users (id, firstname, lastname, pseudo, email, password, id_role)
 VALUES  (1, 'Vito', 'Deriu', 'Weep', 'vito@portfolio.com', '$2y$10$icKnODwleaMwi006Ic.h5OEj2.vZ/a3tyuh2oR20nvj1fY8TMv0CW', 1),
         (2, 'Kantin', 'Fagniart', 'KAVTIV', 'kantin@portfolio.com', '$2y$10$icKnODwleaMwi006Ic.h5OEj2.vZ/a3tyuh2oR20nvj1fY8TMv0CW', 2),
-        (3, 'Julien', 'Dante', 'jdnte', 'julien@portfolio.com', '$2y$10$icKnODwleaMwi006Ic.h5OEj2.vZ/a3tyuh2oR20nvj1fY8TMv0CW', 2);
+        (3, 'Julien', 'Dante', 'jdnte', 'julien@portfolio.com', '$2y$10$icKnODwleaMwi006Ic.h5OEj2.vZ/a3tyuh2oR20nvj1fY8TMv0CW', 2),
+        (4, 'Nath', 'Pivot', 'Epikdiamon', 'nath@portfolio.com', '$2y$10$icKnODwleaMwi006Ic.h5OEj2.vZ/a3tyuh2oR20nvj1fY8TMv0CW', 1);
 

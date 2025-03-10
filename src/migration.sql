@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS projects (
     image VARCHAR(100),
     link VARCHAR(255),
     id_user INT,
-    FOREIGN KEY (id_user) REFERENCES users(id)
+    FOREIGN KEY (id_user) REFERENCES users(id) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS users_competences (

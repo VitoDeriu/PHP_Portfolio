@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <?php include("head.php"); ?>
     <title>Document</title>
 </head>
 <body>
@@ -31,6 +30,7 @@
                 <?php if ($_SESSION['user']['id'] === $project['id_user'] || $_SESSION['user']['role'] === 1) : ?>
                     <form action="/project/delete" method="POST">
                         <input type="hidden" name="id" value="<?= $project['id'] ?>">
+                        <input type="hidden" name="user_id" value="<? $project['id_user'] ?>">
                         <button type="submit" onclick="return confirm('Voulez-vous vraiment supprimer ce projet ?')">Supprimax</button>
                     </form>
                 <?php endif; ?> 

@@ -139,62 +139,63 @@ class ProjectController{
         }
     }
 
-
     // TODO : Suppression d'un projet, seulement accessible depuis le dashboard admin et la vue depuis le compte admin et depuis mesprojets pour les users.
     public function deleteProject(){
         // !! Attention !! a verifier ce qui suit c'est chatgpt !
         // TODO : faire la gestion d'erreur
 
-        //check la conexion 
-        if (!isset($_SESSION['user'])) {
-            header('Location: /login');
-            exit;
-        }
+        if($_SERVER['REQUEST_METHOD'] ===  'POST' && isset($_SESSION['user'])){
+            $_SESSION['errors'] =[]; //nettoyage des erreurs de sessions
 
-        //check si l'id récupérer du delete est set et est un nombre
-        if (!isset($_POST['id']) || !is_numeric($_POST['id'])) {
-            echo "ID invalide";
-            exit;
-        }
+            //check si l'id récupérer du delete est set et est un nombre
+            if (!isset($_POST['id']) || !is_numeric($_POST['id'])) {
+                $_SESSION["errors"]['post_id'] = "Identifiant de projet invalide!";
+            }
 
+            //check si le projet appartient à l'utilisateur ou s'il est admin
+            if(($_POST['user_id'] !== $_SESSION['user']['id']) && ($_SESSION['user']['role'] !== 1)){
+                $_SESSION["errors"]["user_id"] = "Action impossible";
+            }
 
-        $projectId = (int)$_POST['id'];             //transforme en int ? 
-        $projectModel = new Project();              //appel du model maintenant ?
-        $project = $projectModel->find(['id' => $projectId]); //check si le projet existe
-    
-        //erreur si le projet n'existe pas 
-        if (!$project) {
-            echo "Projet introuvable";
-            exit;
-        }
-    
-        // Vérifier si l'utilisateur est bien l'auteur ou admin
-        if ($project[0]['user_id'] !== $_SESSION['user']['id'] && $_SESSION['user']['role'] !== 'admin') {
-            echo "Vous n'avez pas les droits pour supprimer ce projet";
-            exit;
-        }
-    
-        // Supprimer l'image si elle existe
-        if (!empty($project[0]['image'])) {
-            $imagePath = __DIR__ . '/../public/upload/' . $project[0]['image'];
-            if (file_exists($imagePath)) {
-                unlink($imagePath); //explication du unlink ? 
+            //check si y'a des erreurs
+            if(isset($_SESSION["errors"]) && count($_SESSION["errors"]) > 0) {
+                header('Location: /project', 400);
+                exit;
+            }
+
+            $projectId = $_POST['id'];
+
+            try{
+
+                $projectModel = new Project('projects');
+                
+                //on cherche le projet s'il existe
+                $project = $projectModel->find(['id' => $projectId]);
+            
+                //s'il existe pas on renvoie une erreur et retour sur la page projet
+                if(!$project){
+                    $_SESSION['errors']['project'] = "Aucun projet à supprimer!";
+                    header('Location :/project', 400);
+                    exit;
+                }
+
+                // Supprimer l'image si elle existe
+                if (!empty($project['image'])) {
+                    $imagePath = __DIR__ . '/../public/upload/' . $project['image'];
+                    if (file_exists($imagePath)) {
+                        unlink($imagePath); //verifier le unlink si ca supprime bien
+                    }
+                }
+
+                //suppression du projet
+                $projectModel->deleteProject($projectId);
+
+            } catch (Exception $e) {
+                $_SESSION["errors"]["BDD"] = $e->getMessage();
+                header('Location: /project', 500);
+                exit;
             }
         }
-    
-        // Supprimer le projet
-        $projectModel->delete($projectId);
-        header('Location: /');
-        exit;
-
-
-
-
-
-
-
-
-
     }
 
 

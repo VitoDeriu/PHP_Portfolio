@@ -52,7 +52,7 @@ class Project {
             $sql .= " WHERE " . implode(" AND ", $condition);
         }
 
-        $sql .= " ORDER BY id DESC";
+        $sql .= " ORDER BY $table.id DESC";
 
         try {
             $statement = $this->pdo->prepare($sql);
@@ -66,14 +66,12 @@ class Project {
 
     }
 
-    // SELECT p.*, u.pseudo FROM projects AS p
-    // JOIN users AS u ON p.id_user = u.id;
-
     
     //TODO : Delete Project a vérifier chatgpt
     public function deleteProject(int $id): bool {
         $table = $this->table;
-        $sql = "DELETE FROM $table WHERE id = :id";
+        $sql = "DELETE FROM $table WHERE $table.id = :id";
+
         try {
             $statement = $this->pdo->prepare($sql);
             $statement->bindParam("id", $id);
